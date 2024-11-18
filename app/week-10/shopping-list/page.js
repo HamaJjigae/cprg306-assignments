@@ -1,19 +1,42 @@
 "use client";
 
-import React, {useState} from 'react';
+import React, {useState,useEffect} from 'react';
 import ItemList from './item-list.js';
 import NewItem from './new-item.js';
 import MealIdeas from './meal-ideas.js';
-import itemsData from './items.json';
+import {getAuth} from 'firebase/auth';
+import {getItems,addItem} from '../_services/shopping-list-service.js';
 
 
 const Page = () => {
-
-  const [items, setItems] = useState(itemsData);
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const [items, setItems] = useState([]);
   const [selectedItemName, setSelectedItemName] = useState('');
-  const handleAddItem = (newItem) =>
+  const loadItems = async (user) => {
+    try {
+      const fetchedItems = await getItems(user.uid);
+      setItems(fetchedItems);
+    } catch (error) {
+      console.error("Error loading items:", error);
+    }
+  };
+  useEffect(() => {
+    if (user) {
+      loadItems(user);
+    }
+  }, [user]);
+
+  const handleAddItem = async (newItem) =>
   {
-    setItems((prevItems) => [...prevItems, newItem]);
+    if (!user) return;
+    try {
+      const id = await addItem(user.uid, newItem);
+      const itemId = { ...newItem, id };
+      setItems((prevItems) => [...prevItems, itemId]);
+    } catch (error) {
+      console.error("Error adding item: ", error);
+    }
   };
   const handleItemSelect = (item) => {
     const name = item.name

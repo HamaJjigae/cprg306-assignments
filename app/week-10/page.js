@@ -39,7 +39,7 @@ const LandingPage = () => {
           >
             Logout
           </button>
-          <Link href="/week-9/shopping-list">
+          <Link href="/week-10/shopping-list">
             <span
               className="p-4 border rounded"
               style={{
